@@ -11,11 +11,10 @@ func Groups(port string, client *mongo.Client) {
 
 	app.Use(cors.New())
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Ruth!!!")
+		return c.SendString("this will be the frontend!!")
 	})
 
-	imagesGroup := app.Group("/images")
-	ImagesGroup(imagesGroup, client, app)
+	app.Static("/images", "./public")
 
 	clothesGroup := app.Group("/clothes")
 	ClothesGroup(clothesGroup, client)
