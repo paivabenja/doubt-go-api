@@ -1,3 +1,4 @@
 public/*
 tmp/
-.env
+bin
+clth.example.json

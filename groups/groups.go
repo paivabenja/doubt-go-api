@@ -3,15 +3,16 @@ package groups
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/paivabenja/doubt-go-api/database"
 )
 
-func Groups(port string, client *mongo.Client) {
+func Groups(port string) {
+	client := database.Client
 	app := fiber.New()
 
 	app.Use(cors.New())
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("this will be the frontend!!")
+		return c.SendString("ruz!!")
 	})
 
 	app.Static("/images", "./public")
@@ -19,5 +20,14 @@ func Groups(port string, client *mongo.Client) {
 	clothesGroup := app.Group("/clothes")
 	ClothesGroup(clothesGroup, client)
 
-	app.Listen(":" + port)
+	salesGroup := app.Group("/sales")
+	SalesGroup(salesGroup, client)
+
+	authGroup := app.Group("/auth")
+	AuthGroup(authGroup)
+
+	err := app.Listen(":" + port)
+	if err != nil {
+		panic(err)
+	}
 }

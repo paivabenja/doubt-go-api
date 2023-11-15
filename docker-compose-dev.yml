@@ -1,0 +1,34 @@
+version: "3"
+services:
+  cont-doubt-go-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3001:3001"
+    links:
+      - gomongo
+    volumes:
+      - .:/usr/src/app
+    networks:
+      - doubt-go-network
+    depends_on:
+      - gomongo
+
+  gomongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=paiva
+      - MONGO_INITDB_ROOT_PASSWORD=contrasenia
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - doubt-go-network
+
+volumes:
+  mongo-data:
+
+networks:
+  doubt-go-network:

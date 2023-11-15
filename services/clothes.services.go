@@ -5,10 +5,12 @@ import (
 	"errors"
 	"slices"
 
+	"github.com/paivabenja/doubt-go-api/models"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/paivabenja/doubt-go-api/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -19,7 +21,10 @@ func saveImage(c *fiber.Ctx, img_name string) (string, error) {
 		return "", err
 	}
 
-	c.SaveFile(img, "./public/"+img_id)
+	err = c.SaveFile(img, "./public/"+img_id)
+	if err != nil {
+		return "", err
+	}
 	return img_id, nil
 }
 
@@ -34,20 +39,26 @@ func CreateClothe(coll *mongo.Collection, c *fiber.Ctx) error {
 		return err
 	}
 
-	c.BodyParser(&clothe)
+	// Parse the json body of the HTTP request
+	err = c.BodyParser(&clothe)
+	if err != nil {
+		return err
+	}
 	clothe.Img_back = img_back_id
 	clothe.Img_front = img_front_id
 
+	// Insert clothe into database
 	res, err := coll.InsertOne(context.TODO(), clothe)
 	if err != nil {
 		return err
 	}
 
+	// Validate clothe type
 	if !slices.Contains(models.ClotheTypes, clothe.Type) {
 		return errors.New("invalid clothe type")
 	}
 
-	return c.JSON(res)
+	return c.JSON(res.InsertedID)
 }
 
 func GetAllClothes(coll *mongo.Collection, c *fiber.Ctx) error {
@@ -59,9 +70,33 @@ func GetAllClothes(coll *mongo.Collection, c *fiber.Ctx) error {
 
 	for res.Next(context.TODO()) {
 		var clothe models.ClotheWithId
-		res.Decode(&clothe)
+		err := res.Decode(&clothe)
+		if err != nil {
+			return nil
+		}
 		clothes = append(clothes, clothe)
 	}
 
 	return c.JSON(clothes)
+}
+
+func GetClotheById(coll *mongo.Collection, c *fiber.Ctx) error {
+	var clothe models.ClotheWithId
+
+	clotheId, err := stringToObjectId(c.Params("id"))
+	if err != nil {
+		return err
+	}
+
+	err = coll.FindOne(context.TODO(), bson.D{{Key: "_id", Value: clotheId}}).Decode(&clothe)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(clothe)
+}
+
+func stringToObjectId(objectId string) (primitive.ObjectID, error) {
+	res, err := primitive.ObjectIDFromHex(objectId)
+	return res, err
 }
