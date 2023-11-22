@@ -10,7 +10,11 @@ func Groups(port string) {
 	client := database.Client
 	app := fiber.New()
 
-	app.Use(cors.New())
+	app.Use(cors.New(cors.Config{
+		AllowCredentials: true,
+		AllowOrigins:     "http://localhost:3000",
+	}))
+
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("ruz!!")
 	})

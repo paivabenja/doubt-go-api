@@ -5,13 +5,13 @@ import (
 	"errors"
 	"slices"
 
+	"github.com/paivabenja/doubt-go-api/database"
 	"github.com/paivabenja/doubt-go-api/models"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func saveImage(c *fiber.Ctx, img_name string) (string, error) {
@@ -28,7 +28,7 @@ func saveImage(c *fiber.Ctx, img_name string) (string, error) {
 	return img_id, nil
 }
 
-func CreateClothe(coll *mongo.Collection, c *fiber.Ctx) error {
+func CreateClothe(c *fiber.Ctx) error {
 	var clothe models.Clothe
 	img_back_id, err := saveImage(c, "img_back")
 	if err != nil {
@@ -48,7 +48,7 @@ func CreateClothe(coll *mongo.Collection, c *fiber.Ctx) error {
 	clothe.Img_front = img_front_id
 
 	// Insert clothe into database
-	res, err := coll.InsertOne(context.TODO(), clothe)
+	res, err := database.ClothesColl.InsertOne(context.TODO(), clothe)
 	if err != nil {
 		return err
 	}
@@ -61,9 +61,9 @@ func CreateClothe(coll *mongo.Collection, c *fiber.Ctx) error {
 	return c.JSON(res.InsertedID)
 }
 
-func GetAllClothes(coll *mongo.Collection, c *fiber.Ctx) error {
+func GetAllClothes(c *fiber.Ctx) error {
 	var clothes []models.ClotheWithId
-	res, err := coll.Find(context.TODO(), bson.M{})
+	res, err := database.ClothesColl.Find(context.TODO(), bson.M{})
 	if err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func GetAllClothes(coll *mongo.Collection, c *fiber.Ctx) error {
 	return c.JSON(clothes)
 }
 
-func GetClotheById(coll *mongo.Collection, c *fiber.Ctx) error {
+func GetClotheById(c *fiber.Ctx) error {
 	var clothe models.ClotheWithId
 
 	clotheId, err := stringToObjectId(c.Params("id"))
@@ -88,7 +88,7 @@ func GetClotheById(coll *mongo.Collection, c *fiber.Ctx) error {
 		return err
 	}
 
-	err = coll.FindOne(context.TODO(), bson.D{{Key: "_id", Value: clotheId}}).Decode(&clothe)
+	err = database.ClothesColl.FindOne(context.TODO(), bson.D{{Key: "_id", Value: clotheId}}).Decode(&clothe)
 	if err != nil {
 		return err
 	}
