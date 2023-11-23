@@ -108,7 +108,6 @@ func User(c *fiber.Ctx) error {
 	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(t *jwt.Token) (interface{}, error) {
 		return []byte(SecretKey), nil
 	})
-
 	if err != nil {
 		err := c.SendStatus(fiber.StatusNotFound)
 		if err != nil {

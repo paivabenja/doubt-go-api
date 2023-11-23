@@ -1,7 +1,9 @@
 version: "3"
 services:
   cont-doubt-go-api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "3001:3001"
     links:
