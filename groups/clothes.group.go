@@ -5,10 +5,9 @@ import (
 	"github.com/paivabenja/doubt-go-api/services"
 
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func ClothesGroup(group fiber.Router, client *mongo.Client) {
+func ClothesGroup(group fiber.Router) {
 	database.CreateClothesCollection()
 
 	group.Get("/", func(c *fiber.Ctx) error {

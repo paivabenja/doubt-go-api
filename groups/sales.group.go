@@ -4,10 +4,9 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/paivabenja/doubt-go-api/database"
 	"github.com/paivabenja/doubt-go-api/services"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func SalesGroup(group fiber.Router, client *mongo.Client) {
+func SalesGroup(group fiber.Router) {
 	database.CreateSalesCollection()
 
 	group.Get("/", func(c *fiber.Ctx) error {

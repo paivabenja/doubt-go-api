@@ -3,11 +3,9 @@ package groups
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/paivabenja/doubt-go-api/database"
 )
 
 func Groups(port string) {
-	client := database.Client
 	app := fiber.New()
 
 	app.Use(cors.New(cors.Config{
@@ -22,10 +20,10 @@ func Groups(port string) {
 	app.Static("/images", "./public")
 
 	clothesGroup := app.Group("/clothes")
-	ClothesGroup(clothesGroup, client)
+	ClothesGroup(clothesGroup)
 
 	salesGroup := app.Group("/sales")
-	SalesGroup(salesGroup, client)
+	SalesGroup(salesGroup)
 
 	authGroup := app.Group("/auth")
 	AuthGroup(authGroup)
