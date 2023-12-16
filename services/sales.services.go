@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,6 +18,8 @@ func CreateSale(c *fiber.Ctx) error {
 		return err
 	}
 
+	log.Println("VENDI LA CONCHA DE LA RE LORA")
+
 	date := time.Now().Format("2006-1-2 15:4:5")
 	sale.Date = date
 
@@ -29,6 +32,7 @@ func CreateSale(c *fiber.Ctx) error {
 
 func GetAllSales(c *fiber.Ctx) error {
 	var sales []models.Sale
+
 	res, err := database.SalesColl.Find(context.TODO(), bson.D{})
 	if err != nil {
 		return err
@@ -36,10 +40,12 @@ func GetAllSales(c *fiber.Ctx) error {
 
 	for res.Next(context.TODO()) {
 		var sale models.Sale
+
 		err := res.Decode(&sale)
 		if err != nil {
 			return err
 		}
+
 		sales = append(sales, sale)
 	}
 
