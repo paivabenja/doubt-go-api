@@ -34,6 +34,7 @@ func CreateClothe(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+
 	img_front_id, err := saveImage(c, "img_front")
 	if err != nil {
 		return err

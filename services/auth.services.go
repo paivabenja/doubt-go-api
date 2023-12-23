@@ -50,7 +50,11 @@ func Login(c *fiber.Ctx) error {
 
 	var user models.UserModel
 
-	res := database.AuthColl.FindOne(context.TODO(), bson.D{{Key: "email", Value: data.Email}})
+	res := database.AuthColl.FindOne(
+		context.TODO(),
+		bson.D{{Key: "email", Value: data.Email}},
+	)
+
 	err = res.Decode(&user)
 	if err != nil {
 		log.Println(err)
@@ -62,7 +66,11 @@ func Login(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"message": "User not found"})
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data.Password))
+	err = bcrypt.CompareHashAndPassword(
+		[]byte(user.Password),
+		[]byte(data.Password),
+	)
+
 	if err != nil {
 		err := c.SendStatus(fiber.StatusBadRequest)
 		if err != nil {
@@ -105,9 +113,14 @@ func Login(c *fiber.Ctx) error {
 func User(c *fiber.Ctx) error {
 	cookie := c.Cookies("jwt")
 
-	token, err := jwt.ParseWithClaims(cookie, &jwt.RegisteredClaims{}, func(t *jwt.Token) (interface{}, error) {
-		return []byte(SecretKey), nil
-	})
+	token, err := jwt.ParseWithClaims(
+		cookie,
+		&jwt.RegisteredClaims{},
+		func(t *jwt.Token) (interface{}, error) {
+			return []byte(SecretKey), nil
+		},
+	)
+
 	if err != nil {
 		err := c.SendStatus(fiber.StatusNotFound)
 		if err != nil {

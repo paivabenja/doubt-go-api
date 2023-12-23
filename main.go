@@ -9,6 +9,8 @@ import (
 	"github.com/paivabenja/doubt-go-api/groups"
 )
 
+// TODO: save images in db
+
 func getEnvs() (string, string) {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found")
@@ -21,7 +23,6 @@ func getEnvs() (string, string) {
 
 func main() {
 	port, mongo_uri := getEnvs()
-	log.Println("coñooo")
 	database.ConnectToDb(mongo_uri)
 	groups.Groups(port)
 }
