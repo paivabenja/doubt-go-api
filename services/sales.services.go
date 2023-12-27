@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,8 +16,6 @@ func CreateSale(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-
-	log.Println("VENDI LA CONCHA DE LA RE LORA")
 
 	date := time.Now().Format("2006-1-2 15:4:5")
 	sale.Date = date

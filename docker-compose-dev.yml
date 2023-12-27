@@ -9,7 +9,7 @@ services:
     links:
       - gomongo
     volumes:
-      - .:/usr/src/app
+      - .:/usr/src/doubt-go-api
     networks:
       - doubt-go-network
     depends_on:

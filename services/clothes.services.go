@@ -1,8 +1,10 @@
 package services
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"io"
 	"slices"
 
 	"github.com/paivabenja/doubt-go-api/database"
@@ -12,30 +14,68 @@ import (
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func saveImage(c *fiber.Ctx, img_name string) (string, error) {
-	img_id := uuid.NewString()
-	img, err := c.FormFile(img_name)
-	if err != nil {
-		return "", err
-	}
+func GetClthImage(c *fiber.Ctx) error {
+	idHex := c.Params("id")
 
-	err = c.SaveFile(img, "./public/"+img_id)
-	if err != nil {
-		return "", err
-	}
-	return img_id, nil
-}
-
-func CreateClothe(c *fiber.Ctx) error {
-	var clothe models.Clothe
-	img_back_id, err := saveImage(c, "img_back")
+	imgId, err := primitive.ObjectIDFromHex(idHex)
 	if err != nil {
 		return err
 	}
 
-	img_front_id, err := saveImage(c, "img_front")
+	img, err := database.Bucket.OpenDownloadStream(imgId)
+	if err != nil {
+		return err
+	}
+
+	fileBuffer := bytes.NewBuffer(nil)
+
+	_, err = io.Copy(fileBuffer, img)
+	if err != nil {
+		return err
+	}
+
+	defer img.Close()
+
+	return c.SendStream(fileBuffer)
+	// return c.SendString("leslus")
+}
+
+func saveClthImage(c *fiber.Ctx, img_name string) (string, error) {
+	img_id := uuid.NewString()
+	img_header, err := c.FormFile(img_name)
+	if err != nil {
+		return "", err
+	}
+
+	img, err := img_header.Open()
+	if err != nil {
+		return "", err
+	}
+
+	uploadOpts := options.GridFSUpload().SetMetadata(bson.D{{
+		Key:   "metadata tag",
+		Value: "id: " + img_id,
+	}})
+
+	objId, err := database.Bucket.UploadFromStream(img_id, io.Reader(img), uploadOpts)
+	if err != nil {
+		panic(err)
+	}
+
+	return objId.Hex(), nil
+}
+
+func CreateClothe(c *fiber.Ctx) error {
+	var clothe models.Clothe
+	img_back_id, err := saveClthImage(c, "img_back")
+	if err != nil {
+		return err
+	}
+
+	img_front_id, err := saveClthImage(c, "img_front")
 	if err != nil {
 		return err
 	}
@@ -89,7 +129,10 @@ func GetClotheById(c *fiber.Ctx) error {
 		return err
 	}
 
-	err = database.ClothesColl.FindOne(context.TODO(), bson.D{{Key: "_id", Value: clotheId}}).Decode(&clothe)
+	err = database.ClothesColl.FindOne(
+		context.TODO(),
+		bson.D{{Key: "_id", Value: clotheId}},
+	).Decode(&clothe)
 	if err != nil {
 		return err
 	}
