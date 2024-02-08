@@ -3,7 +3,7 @@ package groups
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/paivabenja/doubt-go-api/services"
+	"github.com/paivabenja/doubt-go-api/services/clothes"
 )
 
 func Groups(port string) {
@@ -18,8 +18,8 @@ func Groups(port string) {
 		return c.SendString("ruz!!")
 	})
 
-  app.Get("/images/:id", func (c *fiber.Ctx) error {
-	 return services.GetClthImage(c)
+	app.Get("/images/:id", func(c *fiber.Ctx) error {
+		return clothes.GetClthImage(c)
 	})
 
 	clothesGroup := app.Group("/clothes")

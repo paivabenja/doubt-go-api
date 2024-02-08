@@ -24,6 +24,7 @@ func CreateSale(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
+
 	return c.JSON(res)
 }
 

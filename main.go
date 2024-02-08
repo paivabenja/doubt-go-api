@@ -20,6 +20,7 @@ func getEnvs() (string, string) {
 }
 
 func main() {
+	log.Println("holi")
 	port, mongo_uri := getEnvs()
 	database.ConnectToDb(mongo_uri)
 	groups.Groups(port)
